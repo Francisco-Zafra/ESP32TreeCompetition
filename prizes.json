@@ -1,0 +1,74 @@
+[
+  {
+    "id": "0x01",
+    "key": "ENDURANCE.PRIZE",
+    "accent": "cyan",
+    "icon": "⏱️",
+    "name": "Más Horas de TREE",
+    "desc": "Para el valiente que más horas ha malgastado mirando cómo crece un árbol de dependencias que nunca termina de compilar. El verdadero asceta del firmware."
+  },
+  {
+    "id": "0x02",
+    "key": "CREATIVITY.PRIZE",
+    "accent": "purple",
+    "icon": "🎨",
+    "name": "El Más Original",
+    "desc": "Ese proyecto que nadie esperaba y que hace pensar '¿pero para qué sirve esto?'. La respuesta no importa. El concepto manda. Chapeau."
+  },
+  {
+    "id": "0x03",
+    "key": "JANK.PRIZE",
+    "accent": "orange",
+    "icon": "🍝",
+    "name": "El Más Cutre",
+    "desc": "Cables pelados con cinta americana, código sin comentarios, GND que da miedo tocar. Una obra de arte en el peor sentido del término. Con mucho cariño."
+  },
+  {
+    "id": "0x04",
+    "key": "HYPE.PRIZE",
+    "accent": "red",
+    "icon": "🚀",
+    "name": "El Más Venido Arriba",
+    "desc": "Llegó queriendo hacer un LED parpadeante y terminó intentando implementar una IA distribuida en 512KB. La ambición no tiene límites. El heap sí."
+  },
+  {
+    "id": "0x05",
+    "key": "UTILITY.PRIZE",
+    "accent": "lime",
+    "icon": "🔧",
+    "name": "El Más Útil",
+    "desc": "El proyecto que resuelve un problema real. Que la gente usaría de verdad. El raro de la clase que sí ha leído los requisitos. Merece todo el respeto."
+  },
+  {
+    "id": "0x06",
+    "key": "BASELINE.PRIZE",
+    "accent": "cyan",
+    "icon": "📊",
+    "name": "El Premio a la Normalidad",
+    "desc": "Ni fu ni fa. Funciona. Es correcto. Está bien. Aburrido como el datasheet del que no se aparta. El ingeniero que la empresa necesita, no el que merece."
+  },
+  {
+    "id": "0x07",
+    "key": "FRUGAL.PRIZE",
+    "accent": "yellow",
+    "icon": "💀",
+    "name": "El Más Tieso",
+    "desc": "Ha llegado a la competición con lo puesto. Reutiliza componentes de otra placa rota. El BOM tiene un coste de 0€ y aun así han entregado algo. Leyenda."
+  },
+  {
+    "id": "0x08",
+    "key": "YOLO.PRIZE",
+    "accent": "pink",
+    "icon": "💸",
+    "name": "Se Ha Fundido el Sueldo",
+    "desc": "Tres osciloscopios, dos módulos de radio, un PCB encargado en JLCPCB con envío express y un soldering station que vale más que el proyecto. Sin arrepentimientos."
+  },
+  {
+    "id": "0x09",
+    "key": "IMBECIL.PRIZE",
+    "accent": "orange",
+    "icon": "🤡",
+    "name": "El Más Imbécil",
+    "desc": "Un galardón especial para quien ha tomado la decisión más monumentalmente absurda de la competición. Ya sea flashear el chip al revés, conectar 5V donde iba GND, o commitear credenciales en público. La cagada habla por sí sola."
+  }
+]

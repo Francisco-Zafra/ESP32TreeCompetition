@@ -1,0 +1,92 @@
+[
+  {
+    "id": "UNIT_01",
+    "accent": "orange",
+    "avatar": "👑",
+    "name": "Miguel",
+    "role": "Chief Irresponsibility Officer",
+    "tag": "EDAD MENTAL: BETA RELEASE",
+    "bio": "Trabaja más que nadie, eso está fuera de toda duda. El problema es que lo hace con la madurez de un becario de 19 años que acaba de descubrir el overclock. Llega el primero, se queda el último, y en medio hace tres bromas, dos memes internos y una apuesta sobre si el watchdog timer aguanta más que Manu en la oficina.",
+    "meta": "ACCESS_LEVEL: JEFE (HONORÍFICO)",
+    "stats": [
+      { "label": "HORAS CURRADAS",    "value": 96 },
+      { "label": "MADUREZ",           "value": 11 },
+      { "label": "BROMAS EN STANDUP", "value": 100 }
+    ]
+  },
+  {
+    "id": "UNIT_02",
+    "accent": "cyan",
+    "avatar": "🌊",
+    "name": "Manu",
+    "role": "Vacation-Driven Developer",
+    "tag": "ESTADO: DESCONECTADO DEL GRID",
+    "bio": "Técnicamente está participando en la competición. Técnicamente. En la práctica su ESP32 lleva dos semanas en la mochila junto a unas chanclas y un traje de baño. Sus commits tienen metadatos de ubicación sospechosamente playeros.",
+    "meta": "ORIGEN: GALICIA (MODO SIESTA)",
+    "stats": [
+      { "label": "HORAS TRABAJADAS",   "value": 12 },
+      { "label": "HORAS DE VACACIONES","value": 98 },
+      { "label": "MORENO",             "value": 100 }
+    ]
+  },
+  {
+    "id": "UNIT_03",
+    "accent": "green",
+    "avatar": "🧠",
+    "name": "Adri",
+    "role": "Senior Galaxy Brain Engineer",
+    "tag": "THREAT LEVEL: OMEGA",
+    "bio": "Tiene más idea que Stephen Hawking, Einstein y el propio Xtensa LX7 juntos. Cuando abre el datasheet, el datasheet aprende. Sus pull requests vienen acompañados de papers académicos que él mismo ha citado. El favorito. El odiado. El elegido.",
+    "meta": "FAVORITO // CLASIFICADO",
+    "stats": [
+      { "label": "CONOCIMIENTO",       "value": 99 },
+      { "label": "HUMILDAD",           "value": 99 },
+      { "label": "BUGS EN PRODUCCIÓN", "value": 1 }
+    ]
+  },
+  {
+    "id": "UNIT_04",
+    "accent": "yellow",
+    "avatar": "🤷",
+    "name": "Javi",
+    "role": "Ambiguous-Domain Architect",
+    "tag": "MODO: UNDEFINED BEHAVIOUR",
+    "bio": "Lleva semanas en la competición y aún no tiene claro si su proyecto es un hobby, un trabajo, un experimento artístico o una crisis existencial. Lo bueno es que tampoco le preocupa. Su código funciona. Él no sabe por qué. Nadie lo sabe.",
+    "meta": "ESTADO: SCHRÖDINGER",
+    "stats": [
+      { "label": "PREOCUPACIÓN",      "value": 3 },
+      { "label": "VIBE",              "value": 91 },
+      { "label": "CLARIDAD OBJETIVOS","value": 7 }
+    ]
+  },
+  {
+    "id": "UNIT_05",
+    "accent": "purple",
+    "avatar": "⚛️",
+    "name": "Kfir",
+    "role": "Quantum Firmware Philosopher",
+    "tag": "ETA ENTREGA: CALOR TÉRMICO DEL UNIVERSO",
+    "bio": "Argentino de espíritu, lo que significa que tiene una opinión muy formada sobre todo, especialmente sobre cosas que no existen todavía. Mientras los demás programan, él intenta comprender el ESP32 a nivel subatómico. Su proyecto entregará cuando entienda por qué los electrones van hacia allá.",
+    "meta": "ORIGEN: BUENOS AIRES DEL ALMA",
+    "stats": [
+      { "label": "PROFUNDIDAD ANÁLISIS","value": 100 },
+      { "label": "LÍNEAS DE CÓDIGO",    "value": 8 },
+      { "label": "PASIÓN",              "value": 100 }
+    ]
+  },
+  {
+    "id": "UNIT_06",
+    "accent": "pink",
+    "avatar": "🏭",
+    "name": "Fran",
+    "role": "Principal Galaxy-Brained Overarchitect",
+    "tag": "SCOPE CREEP: NIVEL DIOS",
+    "bio": "Le pediste un LED parpadeante. Te entregó un framework modular con abstracción de capas de hardware, un sistema de plugins, documentación con diagramas UML y un PCB custom con serigrafía. Le pides un chicle y diseña la fábrica, el packaging y el plan de distribución logística a nivel europeo.",
+    "meta": "CLASIFICACIÓN: OVER-ENGINEER",
+    "stats": [
+      { "label": "OVER-ENGINEERING","value": 100 },
+      { "label": "CALIDAD TÉCNICA", "value": 96 },
+      { "label": "SIMPLICIDAD",     "value": 2 }
+    ]
+  }
+]
