@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32-S3 SUPER MINI // COMPETITION</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff41;
+    --cyan: #00f5ff;
+    --red: #ff003c;
+    --orange: #ff6b00;
+    --yellow: #ffe600;
+    --bg: #020a06;
+    --bg2: #050f08;
+    --panel: rgba(0,255,65,0.04);
+    --border: rgba(0,255,65,0.2);
+    --border-bright: rgba(0,255,65,0.6);
+    --glow: 0 0 10px rgba(0,255,65,0.5), 0 0 30px rgba(0,255,65,0.2);
+    --glow-cyan: 0 0 10px rgba(0,245,255,0.5), 0 0 30px rgba(0,245,255,0.2);
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-display: 'Orbitron', monospace;
+    --font-body: 'Rajdhani', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* SCANLINES */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* MATRIX CANVAS */
+  #matrix-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.07;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* NOISE OVERLAY */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-corner {
+    position: absolute;
+    width: 60px; height: 60px;
+    border-color: var(--green);
+    border-style: solid;
+    opacity: 0.5;
+  }
+  .hero-corner.tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+  .hero-corner.tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+  .hero-corner.bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+  .hero-corner.br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+  .system-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeIn 0.5s 0.3s forwards;
+  }
+  .system-tag::before { content: '[ '; }
+  .system-tag::after { content: ' ]'; }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    color: var(--green);
+    text-shadow: var(--glow);
+    opacity: 0;
+    animation: glitchIn 0.8s 0.6s forwards;
+  }
+
+  .hero-title .accent {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--cyan);
+    text-shadow: var(--glow-cyan);
+    display: block;
+    font-size: clamp(1.5rem, 5vw, 4rem);
+    letter-spacing: 8px;
+    margin-top: 10px;
+  }
+
+  .chip-label {
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border-bright);
+    padding: 10px 24px;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    box-shadow: var(--glow-cyan);
+    opacity: 0;
+    animation: fadeIn 0.5s 1.2s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .chip-label::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.1), transparent);
+    animation: shimmer 3s infinite;
+  }
+  .chip-dot { width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+  .hero-desc {
+    margin-top: 32px;
+    font-family: var(--font-body);
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    color: rgba(0,255,65,0.7);
+    max-width: 600px;
+    line-height: 1.7;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeIn 0.5s 1.5s forwards;
+  }
+
+  .hero-stats {
+    margin-top: 40px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeIn 0.5s 1.8s forwards;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: var(--glow);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: rgba(0,255,65,0.5);
+    text-transform: uppercase;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    font-size: 0.65rem;
+    letter-spacing: 4px;
+    color: rgba(0,255,65,0.4);
+    animation: blink 1.5s infinite;
+  }
+
+  /* ── SECTION COMMON ── */
+  section {
+    position: relative;
+    z-index: 10;
+    padding: 80px 20px;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .section-tag {
+    font-size: 0.65rem;
+    letter-spacing: 6px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: var(--glow);
+    text-transform: uppercase;
+  }
+  .section-line {
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    margin: 16px auto 0;
+  }
+
+  /* ── PRIZES GRID ── */
+  .prizes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .prize-card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  }
+  .prize-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--green)), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .prize-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,255,65,0.05), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .prize-card:hover {
+    border-color: var(--card-accent, var(--green));
+    box-shadow: 0 0 20px rgba(0,255,65,0.15), inset 0 0 30px rgba(0,255,65,0.03);
+    transform: translateY(-3px);
+  }
+  .prize-card:hover::before,
+  .prize-card:hover::after { opacity: 1; }
+
+  .prize-id {
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--card-accent, var(--green));
+    opacity: 0.6;
+    margin-bottom: 14px;
+  }
+
+  .prize-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 8px var(--card-accent, var(--green)));
+  }
+
+  .prize-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--card-accent, var(--green));
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .prize-desc {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: rgba(0,255,65,0.6);
+    line-height: 1.6;
+  }
+
+  .prize-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    border: 1px solid var(--card-accent, var(--green));
+    color: var(--card-accent, var(--green));
+    opacity: 0.7;
+  }
+
+  /* ── TERMINAL SECTION ── */
+  .terminal-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .terminal {
+    background: #000;
+    border: 1px solid var(--border-bright);
+    box-shadow: var(--glow), inset 0 0 60px rgba(0,0,0,0.8);
+    overflow: hidden;
+  }
+  .terminal-bar {
+    background: rgba(0,255,65,0.08);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot.red { background: var(--red); }
+  .t-dot.yellow { background: var(--yellow); }
+  .t-dot.green { background: var(--green); }
+  .terminal-title {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: rgba(0,255,65,0.5);
+    margin-left: auto;
+  }
+  .terminal-body {
+    padding: 24px;
+    min-height: 280px;
+    font-size: 0.8rem;
+    line-height: 1.9;
+  }
+  .t-line { display: block; }
+  .t-prompt { color: var(--cyan); }
+  .t-cmd { color: var(--green); }
+  .t-out { color: rgba(0,255,65,0.6); padding-left: 0; }
+  .t-warn { color: var(--orange); }
+  .t-err { color: var(--red); }
+  .t-highlight { color: var(--yellow); font-weight: bold; }
+  .t-cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--green);
+    animation: blink 1s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  /* ── BOARD SPECS ── */
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .spec-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .spec-item:hover {
+    background: rgba(0,255,65,0.08);
+    border-color: var(--green);
+  }
+  .spec-key {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .spec-val {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green);
+    text-shadow: var(--glow);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 10;
+    border-top: 1px solid var(--border);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: var(--glow);
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+  }
+  .footer-line {
+    font-size: 0.65rem;
+    color: rgba(0,255,65,0.3);
+    letter-spacing: 3px;
+  }
+
+  /* ── COUNTDOWN ── */
+  .countdown-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .deadline-label {
+    font-size: 0.65rem;
+    letter-spacing: 6px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+    animation: blink 2s infinite;
+  }
+  .deadline-date {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 3vw, 1.6rem);
+    font-weight: 700;
+    color: rgba(255,0,60,0.8);
+    letter-spacing: 6px;
+    margin-bottom: 40px;
+    display: block;
+  }
+  .countdown-grid {
+    display: flex;
+    justify-content: center;
+    gap: clamp(10px, 3vw, 28px);
+    flex-wrap: wrap;
+  }
+  .cd-unit {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .cd-box {
+    position: relative;
+    width: clamp(80px, 18vw, 150px);
+    height: clamp(80px, 18vw, 150px);
+    background: rgba(255,0,60,0.04);
+    border: 1px solid rgba(255,0,60,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .cd-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,0,60,0.8), transparent);
+  }
+  .cd-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 6px,
+      rgba(255,0,60,0.03) 6px, rgba(255,0,60,0.03) 7px
+    );
+    pointer-events: none;
+  }
+  .cd-unit:hover .cd-box {
+    border-color: rgba(255,0,60,0.8);
+    box-shadow: 0 0 20px rgba(255,0,60,0.3), inset 0 0 20px rgba(255,0,60,0.05);
+  }
+  .cd-num {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 15px rgba(255,0,60,0.7), 0 0 40px rgba(255,0,60,0.3);
+    line-height: 1;
+    transition: all 0.15s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .cd-num.flip {
+    animation: cdFlip 0.3s ease;
+  }
+  .cd-sep {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    color: rgba(255,0,60,0.3);
+    align-self: center;
+    margin-bottom: 28px;
+    animation: blink 1s infinite;
+  }
+  .cd-label {
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: rgba(255,0,60,0.5);
+    text-transform: uppercase;
+  }
+  .cd-progress-wrap {
+    margin-top: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cd-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: rgba(255,0,60,0.5);
+    margin-bottom: 8px;
+  }
+  .cd-progress-bar {
+    height: 4px;
+    background: rgba(255,0,60,0.1);
+    border: 1px solid rgba(255,0,60,0.2);
+    overflow: hidden;
+  }
+  .cd-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), #ff6b00);
+    box-shadow: 0 0 10px rgba(255,0,60,0.6);
+    transition: width 1s linear;
+  }
+  .cd-expired {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 20px rgba(255,0,60,0.8);
+    letter-spacing: 4px;
+    animation: blink 0.5s infinite;
+  }
+
+  @keyframes cdFlip {
+    0% { transform: translateY(-8px); opacity: 0.3; }
+    50% { transform: translateY(4px); }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ── HEX DECORATION ── */
+  .hex-deco {
+    position: absolute;
+    right: -60px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.55rem;
+    color: rgba(0,255,65,0.1);
+    line-height: 1.4;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 40px;
+    color: rgba(0,255,65,0.2);
+    font-size: 0.6rem;
+    letter-spacing: 6px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── GLITCH EFFECT ── */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .glitch::before {
+    color: var(--cyan);
+    animation: glitch1 3s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  }
+  .glitch::after {
+    color: var(--red);
+    animation: glitch2 3s infinite;
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes glitchIn {
+    0% { opacity: 0; transform: skewX(-10deg) translateX(-20px); }
+    20% { opacity: 1; transform: skewX(5deg) translateX(5px); }
+    40% { transform: skewX(-3deg) translateX(-3px); }
+    60% { transform: skewX(2deg) translateX(2px); }
+    80% { transform: skewX(-1deg); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--cyan); }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 200%; }
+  }
+  @keyframes glitch1 {
+    0%, 90%, 100% { transform: none; opacity: 0; }
+    92% { transform: translateX(-3px); opacity: 0.7; }
+    94% { transform: translateX(3px); opacity: 0; }
+    96% { transform: translateX(-2px); opacity: 0.5; }
+    98% { transform: none; opacity: 0; }
+  }
+  @keyframes glitch2 {
+    0%, 88%, 100% { transform: none; opacity: 0; }
+    90% { transform: translateX(3px); opacity: 0.6; }
+    93% { transform: translateX(-3px); opacity: 0; }
+    95% { transform: translateX(2px); opacity: 0.4; }
+    97% { transform: none; opacity: 0; }
+  }
+  @keyframes cardReveal {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card color variants */
+  .prize-card[data-accent="cyan"] { --card-accent: #00f5ff; }
+  .prize-card[data-accent="orange"] { --card-accent: #ff6b00; }
+  .prize-card[data-accent="red"] { --card-accent: #ff003c; }
+  .prize-card[data-accent="yellow"] { --card-accent: #ffe600; }
+  .prize-card[data-accent="purple"] { --card-accent: #b000ff; }
+  .prize-card[data-accent="pink"] { --card-accent: #ff00aa; }
+  .prize-card[data-accent="lime"] { --card-accent: #aaff00; }
+
+  /* Reveal on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix-bg"></canvas>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div>
+  <div class="hero-corner br"></div>
+
+  <span class="system-tag">SISTEMA INICIADO // COMPETICIÓN ACTIVA</span>
+
+  <h1 class="hero-title glitch" data-text="ESP32">
+    ESP32
+    <span class="accent">S3 SUPER MINI</span>
+  </h1>
+
+  <div class="chip-label">
+    <span class="chip-dot"></span>
+    HACKATHON CHALLENGE // EDICIÓN ESPECIAL
+    <span class="chip-dot"></span>
+  </div>
+
+  <p class="hero-desc">
+    Una competición donde el hardware manda, el firmware sufre<br>
+    y el debugging es un estilo de vida. ¿Tienes lo que hace falta?
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" id="cnt-prizes">08</span>
+      <span class="stat-label">Premios</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="cnt-mhz">240</span>
+      <span class="stat-label">MHz / Core</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="cnt-ram">512</span>
+      <span class="stat-label">KB SRAM</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Café</span>
+    </div>
+  </div>
+
+  <span class="scroll-hint">▼ SCROLL DOWN ▼</span>
+</section>
+
+<!-- ══════════════ TERMINAL ══════════════ -->
+<div class="divider">SYSTEM LOG</div>
+
+<section style="padding: 60px 20px;">
+  <div class="terminal-wrap reveal">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="t-dot red"></span>
+        <span class="t-dot yellow"></span>
+        <span class="t-dot green"></span>
+        <span class="terminal-title">root@esp32-competition:~</span>
+      </div>
+      <div class="terminal-body">
+        <span class="t-line"><span class="t-prompt">root@esp32 ~ $ </span><span class="t-cmd">./launch_competition.sh --mode=extreme</span></span>
+        <span class="t-line t-out">> Inicializando kernel de competición...</span>
+        <span class="t-line t-out">> Cargando módulo ESP32-S3 Super Mini v1.0.0... <span class="t-highlight">OK</span></span>
+        <span class="t-line t-out">> Verificando participantes... <span class="t-highlight">DETECTADOS</span></span>
+        <span class="t-line t-warn">> ADVERTENCIA: Niveles de cafeína críticos en sala</span>
+        <span class="t-line t-out">> Montando sistema de premios... <span class="t-highlight">8 AWARDS LOADED</span></span>
+        <span class="t-line t-err">> ERROR: Se detectan soldaduras dudosas en sector 3</span>
+        <span class="t-line t-out">> Ignorando error... estilo "el más cutre"</span>
+        <span class="t-line t-out">> Horas de depuración registradas: <span class="t-highlight">DEMASIADAS</span></span>
+        <span class="t-line t-out">> Estado del sueldo: <span class="t-err">FUNDIDO</span></span>
+        <span class="t-line"><span class="t-prompt">root@esp32 ~ $ </span><span class="t-cmd">cat /etc/competition/status</span></span>
+        <span class="t-line t-highlight">> ¡COMPETICIÓN EN MARCHA! GOOD LUCK HACKERS.</span>
+        <span class="t-line"><span class="t-prompt">root@esp32 ~ $ </span><span class="t-cursor"></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ BOARD SPECS ══════════════ -->
+<div class="divider">HARDWARE SPECS</div>
+
+<section style="padding: 60px 20px;">
+  <div class="section-header reveal">
+    <span class="section-tag">// TARGET HARDWARE</span>
+    <h2 class="section-title">ESP32-S3 Super Mini</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="specs-grid reveal">
+    <div class="spec-item">
+      <div class="spec-key">CPU</div>
+      <div class="spec-val">Xtensa LX7</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">Cores</div>
+      <div class="spec-val">Dual Core</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">Clock</div>
+      <div class="spec-val">240 MHz</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">SRAM</div>
+      <div class="spec-val">512 KB</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">Flash</div>
+      <div class="spec-val">4 / 8 MB</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">WiFi</div>
+      <div class="spec-val">802.11 b/g/n</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">Bluetooth</div>
+      <div class="spec-val">BLE 5.0</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">USB</div>
+      <div class="spec-val">Type-C OTG</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">GPIO</div>
+      <div class="spec-val">14 Pines</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-key">Form Factor</div>
+      <div class="spec-val">SUPER MINI</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ COUNTDOWN ══════════════ -->
+<div class="divider">TIEMPO RESTANTE</div>
+
+<section style="padding: 60px 20px;">
+  <div class="countdown-wrap reveal">
+    <span class="deadline-label">⚠ FECHA LÍMITE DE ENTREGA ⚠</span>
+    <span class="deadline-date">06 · JULIO · 2025 // 00:00:00</span>
+
+    <div class="countdown-grid" id="countdown-grid">
+      <div class="cd-unit">
+        <div class="cd-box"><span class="cd-num" id="cd-days">--</span></div>
+        <span class="cd-label">Días</span>
+      </div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit">
+        <div class="cd-box"><span class="cd-num" id="cd-hours">--</span></div>
+        <span class="cd-label">Horas</span>
+      </div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit">
+        <div class="cd-box"><span class="cd-num" id="cd-mins">--</span></div>
+        <span class="cd-label">Minutos</span>
+      </div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit">
+        <div class="cd-box"><span class="cd-num" id="cd-secs">--</span></div>
+        <span class="cd-label">Segundos</span>
+      </div>
+    </div>
+
+    <div class="cd-progress-wrap">
+      <div class="cd-progress-label">
+        <span>INICIO :: COMPETICIÓN</span>
+        <span id="cd-pct">0%</span>
+        <span>DEADLINE 06/07</span>
+      </div>
+      <div class="cd-progress-bar">
+        <div class="cd-progress-fill" id="cd-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PRIZES ══════════════ -->
+<div class="divider">AWARDS SYSTEM</div>
+
+<section id="premios" style="padding: 80px 20px;">
+  <div class="section-header reveal">
+    <span class="section-tag">// CATEGORÍAS DE PREMIO</span>
+    <h2 class="section-title">Los Galardones</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="prizes-grid">
+
+    <div class="prize-card reveal" data-accent="cyan">
+      <span class="prize-badge">AWARD_01</span>
+      <span class="prize-id">// 0x01 :: ENDURANCE.PRIZE</span>
+      <span class="prize-icon">⏱️</span>
+      <div class="prize-name">Más Horas de TREE</div>
+      <p class="prize-desc">Para el valiente que más horas ha malgastado mirando cómo crece un árbol de dependencias que nunca termina de compilar. El verdadero asceta del firmware.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="purple">
+      <span class="prize-badge">AWARD_02</span>
+      <span class="prize-id">// 0x02 :: CREATIVITY.PRIZE</span>
+      <span class="prize-icon">🎨</span>
+      <div class="prize-name">El Más Original</div>
+      <p class="prize-desc">Ese proyecto que nadie esperaba y que hace pensar "¿pero para qué sirve esto?". La respuesta no importa. El concepto manda. Chapeau.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="orange">
+      <span class="prize-badge">AWARD_03</span>
+      <span class="prize-id">// 0x03 :: JANK.PRIZE</span>
+      <span class="prize-icon">🍝</span>
+      <div class="prize-name">El Más Cutre</div>
+      <p class="prize-desc">Cables pelados con cinta americana, código sin comentarios, GND que da miedo tocar. Una obra de arte en el peor sentido del término. Con mucho cariño.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="red">
+      <span class="prize-badge">AWARD_04</span>
+      <span class="prize-id">// 0x04 :: HYPE.PRIZE</span>
+      <span class="prize-icon">🚀</span>
+      <div class="prize-name">El Más Venido Arriba</div>
+      <p class="prize-desc">Llegó queriendo hacer un LED parpadeante y terminó intentando implementar una IA distribuida en 512KB. La ambición no tiene límites. El heap sí.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="lime">
+      <span class="prize-badge">AWARD_05</span>
+      <span class="prize-id">// 0x05 :: UTILITY.PRIZE</span>
+      <span class="prize-icon">🔧</span>
+      <div class="prize-name">El Más Útil</div>
+      <p class="prize-desc">El proyecto que resuelve un problema real. Que la gente usaría de verdad. El raro de la clase que sí ha leído los requisitos. Merece todo el respeto.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="cyan">
+      <span class="prize-badge">AWARD_06</span>
+      <span class="prize-id">// 0x06 :: BASELINE.PRIZE</span>
+      <span class="prize-icon">📊</span>
+      <div class="prize-name">El Premio a la Normalidad</div>
+      <p class="prize-desc">Ni fu ni fa. Funciona. Es correcto. Está bien. Aburrido como el datasheet del que no se aparta. El ingeniero que la empresa necesita, no el que merece.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="yellow">
+      <span class="prize-badge">AWARD_07</span>
+      <span class="prize-id">// 0x07 :: FRUGAL.PRIZE</span>
+      <span class="prize-icon">💀</span>
+      <div class="prize-name">El Más Tieso</div>
+      <p class="prize-desc">Ha llegado a la competición con lo puesto. Reutiliza componentes de otra placa rota. El BOM tiene un coste de 0€ y aun así han entregado algo. Leyenda.</p>
+    </div>
+
+    <div class="prize-card reveal" data-accent="pink">
+      <span class="prize-badge">AWARD_08</span>
+      <span class="prize-id">// 0x08 :: YOLO.PRIZE</span>
+      <span class="prize-icon">💸</span>
+      <div class="prize-name">Se Ha Fundido el Sueldo</div>
+      <p class="prize-desc">Tres osciloscopios, dos módulos de radio, un PCB encargado en JLCPCB con envío express y un soldering station que vale más que el proyecto. Sin arrepentimientos.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <div class="footer-logo">ESP32-S3 // COMPETITION</div>
+  <p class="footer-line">TODOS LOS BYTES RESERVADOS // QUE EMPIECE EL CAOS</p>
+  <p class="footer-line" style="margin-top:8px; font-size:0.55rem;">
+    <span id="footer-hash"></span>
+  </p>
+</footer>
+
+<script>
+// ── MATRIX RAIN ──
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initMatrix();
+});
+const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ01アECU32ABCDEF0123456789∑∆≠≈∞ΠΣΦΨΩ';
+let cols, drops;
+function initMatrix() {
+  const fontSize = 14;
+  cols = Math.floor(canvas.width / fontSize);
+  drops = Array(cols).fill(1);
+}
+initMatrix();
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(2,10,6,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff41';
+  ctx.font = '14px Share Tech Mono, monospace';
+  drops.forEach((y, i) => {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillStyle = i % 5 === 0 ? '#00f5ff' : '#00ff41';
+    ctx.globalAlpha = Math.random() * 0.5 + 0.1;
+    ctx.fillText(char, i * 14, y * 14);
+    if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  });
+  ctx.globalAlpha = 1;
+}
+setInterval(drawMatrix, 50);
+
+// ── SCROLL REVEAL ──
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      const delay = e.target.closest('.prizes-grid')
+        ? Array.from(e.target.parentElement.children).indexOf(e.target) * 80
+        : 0;
+      setTimeout(() => e.target.classList.add('visible'), delay);
+    }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => observer.observe(el));
+
+// ── FOOTER HASH ──
+const hash = Array.from({length: 40}, () => '0123456789ABCDEF'[Math.floor(Math.random()*16)]).join('');
+document.getElementById('footer-hash').textContent = 'BUILD :: 0x' + hash;
+
+// ── COUNTDOWN ──
+(function() {
+  const deadline = new Date('2025-07-06T00:00:00');
+  // Use a competition start date for progress bar (today-ish)
+  const start = new Date('2025-05-13T00:00:00');
+  const totalMs = deadline - start;
+
+  const pad = n => String(Math.max(0, n)).padStart(2, '0');
+  const elDays  = document.getElementById('cd-days');
+  const elHours = document.getElementById('cd-hours');
+  const elMins  = document.getElementById('cd-mins');
+  const elSecs  = document.getElementById('cd-secs');
+  const elBar   = document.getElementById('cd-bar');
+  const elPct   = document.getElementById('cd-pct');
+
+  let prevVals = {};
+
+  function animateFlip(el, val) {
+    if (prevVals[el.id] !== val) {
+      el.classList.remove('flip');
+      void el.offsetWidth; // reflow
+      el.classList.add('flip');
+      el.textContent = val;
+      prevVals[el.id] = val;
+    }
+  }
+
+  function tick() {
+    const now = new Date();
+    const diff = deadline - now;
+
+    if (diff <= 0) {
+      document.getElementById('countdown-grid').innerHTML =
+        '<span class="cd-expired">⚡ TIEMPO AGOTADO // ENTREGA CERRADA ⚡</span>';
+      elBar.style.width = '100%';
+      elPct.textContent = '100%';
+      return;
+    }
+
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000)  / 60000);
+    const secs  = Math.floor((diff % 60000)    / 1000);
+
+    animateFlip(elDays,  pad(days));
+    animateFlip(elHours, pad(hours));
+    animateFlip(elMins,  pad(mins));
+    animateFlip(elSecs,  pad(secs));
+
+    const elapsed = now - start;
+    const pct = Math.min(100, Math.max(0, (elapsed / totalMs) * 100));
+    elBar.style.width = pct.toFixed(2) + '%';
+    elPct.textContent = pct.toFixed(1) + '%';
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// ── COUNTER ANIMATION ──
+function animateCount(el, target, suffix='') {
+  let current = 0;
+  const step = target / 40;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current) + suffix;
+    if (current >= target) clearInterval(timer);
+  }, 30);
+}
+setTimeout(() => {
+  animateCount(document.getElementById('cnt-prizes'), 8);
+  animateCount(document.getElementById('cnt-mhz'), 240);
+  animateCount(document.getElementById('cnt-ram'), 512);
+}, 2000);
+</script>
+</body>
+</html>
