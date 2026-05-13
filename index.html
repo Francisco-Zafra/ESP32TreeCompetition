@@ -412,6 +412,129 @@
     text-shadow: var(--glow);
   }
 
+  /* ── PARTICIPANTS ── */
+  .participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .participant-card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px 22px 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .participant-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 0% 0%, rgba(0,245,255,0.06), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .participant-card:hover {
+    border-color: var(--pc-accent, var(--cyan));
+    box-shadow: 0 0 24px rgba(0,245,255,0.12), inset 0 0 30px rgba(0,245,255,0.03);
+    transform: translateY(-4px);
+  }
+  .participant-card:hover::before { opacity: 1; }
+
+  .pc-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .pc-avatar {
+    width: 48px; height: 48px;
+    border: 1px solid var(--pc-accent, var(--cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    background: rgba(0,245,255,0.05);
+    box-shadow: 0 0 10px rgba(0,245,255,0.15);
+  }
+  .pc-info { flex: 1; min-width: 0; }
+  .pc-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--pc-accent, var(--cyan));
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    text-shadow: 0 0 10px var(--pc-accent, var(--cyan));
+  }
+  .pc-role {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: rgba(0,245,255,0.45);
+    text-transform: uppercase;
+    margin-top: 3px;
+    display: block;
+  }
+  .pc-id {
+    font-size: 0.55rem;
+    color: rgba(0,255,65,0.25);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .pc-bio {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: rgba(0,255,65,0.6);
+    line-height: 1.65;
+  }
+  .pc-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    padding: 3px 8px;
+    border: 1px solid var(--pc-accent, var(--cyan));
+    color: var(--pc-accent, var(--cyan));
+    opacity: 0.65;
+    text-transform: uppercase;
+  }
+  .pc-bar-wrap {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pc-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: rgba(0,255,65,0.35);
+  }
+  .pc-bar-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(0,255,65,0.08);
+    overflow: hidden;
+  }
+  .pc-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pc-accent, var(--cyan)), var(--green));
+    box-shadow: 0 0 6px var(--pc-accent, var(--cyan));
+  }
+
+  /* accent variants */
+  .participant-card[data-accent="cyan"]   { --pc-accent: #00f5ff; }
+  .participant-card[data-accent="green"]  { --pc-accent: #00ff41; }
+  .participant-card[data-accent="orange"] { --pc-accent: #ff6b00; }
+  .participant-card[data-accent="yellow"] { --pc-accent: #ffe600; }
+  .participant-card[data-accent="purple"] { --pc-accent: #b000ff; }
+  .participant-card[data-accent="pink"]   { --pc-accent: #ff00aa; }
+
   /* ── FOOTER ── */
   footer {
     position: relative;
@@ -951,6 +1074,135 @@
       <span class="prize-icon">💸</span>
       <div class="prize-name">Se Ha Fundido el Sueldo</div>
       <p class="prize-desc">Tres osciloscopios, dos módulos de radio, un PCB encargado en JLCPCB con envío express y un soldering station que vale más que el proyecto. Sin arrepentimientos.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ PARTICIPANTS ══════════════ -->
+<div class="divider">OPERADORES REGISTRADOS</div>
+
+<section style="padding: 80px 20px;">
+  <div class="section-header reveal">
+    <span class="section-tag">// UNIDADES DESPLEGADAS</span>
+    <h2 class="section-title">Los Contendientes</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="participants-grid">
+
+    <!-- MIGUEL -->
+    <div class="participant-card reveal" data-accent="orange">
+      <div class="pc-id">UNIT_01 // ACCESS_LEVEL: JEFE (HONORÍFICO)</div>
+      <div class="pc-header">
+        <div class="pc-avatar">👑</div>
+        <div class="pc-info">
+          <span class="pc-name">Miguel</span>
+          <span class="pc-role">Chief Irresponsibility Officer</span>
+        </div>
+      </div>
+      <p class="pc-bio">Ostenta el título de "jefe" con la misma seriedad con la que delega todo lo que no le apetece hacer. Su mayor logro técnico es saber encender el ESP32. Su mayor logro directivo es convencer a los demás de que era idea suya.</p>
+      <span class="pc-tag">PELIGROSIDAD: MÁXIMA</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>RESPONSABILIDAD</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:4%"></div></div><span>4%</span></div>
+        <div class="pc-bar-row"><span>CARISMA</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:97%"></div></div><span>97%</span></div>
+        <div class="pc-bar-row"><span>DELEGACIÓN</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:100%"></div></div><span>∞%</span></div>
+      </div>
+    </div>
+
+    <!-- MANU -->
+    <div class="participant-card reveal" data-accent="cyan">
+      <div class="pc-id">UNIT_02 // ORIGEN: GALICIA (MODO SIESTA)</div>
+      <div class="pc-header">
+        <div class="pc-avatar">🌊</div>
+        <div class="pc-info">
+          <span class="pc-name">Manu</span>
+          <span class="pc-role">Vacation-Driven Developer</span>
+        </div>
+      </div>
+      <p class="pc-bio">Técnicamente está participando en la competición. Técnicamente. En la práctica su ESP32 lleva dos semanas en la mochila junto a unas chanclas y un traje de baño. Sus commits tienen metadatos de ubicación sospechosamente playeros.</p>
+      <span class="pc-tag">ESTADO: DESCONECTADO DEL GRID</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>HORAS TRABAJADAS</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:12%"></div></div><span>12%</span></div>
+        <div class="pc-bar-row"><span>HORAS DE VACACIONES</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:98%"></div></div><span>98%</span></div>
+        <div class="pc-bar-row"><span>MORENO</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:100%"></div></div><span>100%</span></div>
+      </div>
+    </div>
+
+    <!-- ADRI -->
+    <div class="participant-card reveal" data-accent="green">
+      <div class="pc-id">UNIT_03 // FAVORITO // CLASIFICADO</div>
+      <div class="pc-header">
+        <div class="pc-avatar">🧠</div>
+        <div class="pc-info">
+          <span class="pc-name">Adri</span>
+          <span class="pc-role">Senior Galaxy Brain Engineer</span>
+        </div>
+      </div>
+      <p class="pc-bio">Tiene más idea que Stephen Hawking, Einstein y el propio Xtensa LX7 juntos. Cuando abre el datasheet, el datasheet aprende. Sus pull requests vienen acompañados de papers académicos que él mismo ha citado. El favorito. El odiado. El elegido.</p>
+      <span class="pc-tag">THREAT LEVEL: OMEGA</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>CONOCIMIENTO</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:99%"></div></div><span>99%</span></div>
+        <div class="pc-bar-row"><span>HUMILDAD</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:99%"></div></div><span>99%</span></div>
+        <div class="pc-bar-row"><span>BUGS EN PRODUCCIÓN</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:1%"></div></div><span>1%</span></div>
+      </div>
+    </div>
+
+    <!-- JAVI -->
+    <div class="participant-card reveal" data-accent="yellow">
+      <div class="pc-id">UNIT_04 // ESTADO: SCHRÖDINGER</div>
+      <div class="pc-header">
+        <div class="pc-avatar">🤷</div>
+        <div class="pc-info">
+          <span class="pc-name">Javi</span>
+          <span class="pc-role">Ambiguous-Domain Architect</span>
+        </div>
+      </div>
+      <p class="pc-bio">Lleva semanas en la competición y aún no tiene claro si su proyecto es un hobby, un trabajo, un experimento artístico o una crisis existencial. Lo bueno es que tampoco le preocupa. Su código funciona. Él no sabe por qué. Nadie lo sabe.</p>
+      <span class="pc-tag">MODO: UNDEFINED BEHAVIOUR</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>PREOCUPACIÓN</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:3%"></div></div><span>3%</span></div>
+        <div class="pc-bar-row"><span>VIBE</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:91%"></div></div><span>91%</span></div>
+        <div class="pc-bar-row"><span>CLARIDAD OBJETIVOS</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:7%"></div></div><span>7%</span></div>
+      </div>
+    </div>
+
+    <!-- KFIR -->
+    <div class="participant-card reveal" data-accent="purple">
+      <div class="pc-id">UNIT_05 // ORIGEN: BUENOS AIRES DEL ALMA</div>
+      <div class="pc-header">
+        <div class="pc-avatar">⚛️</div>
+        <div class="pc-info">
+          <span class="pc-name">Kfir</span>
+          <span class="pc-role">Quantum Firmware Philosopher</span>
+        </div>
+      </div>
+      <p class="pc-bio">Argentino de espíritu, lo que significa que tiene una opinión muy formada sobre todo, especialmente sobre cosas que no existen todavía. Mientras los demás programan, él intenta comprender el ESP32 a nivel subatómico. Su proyecto entregará cuando entienda por qué los electrones van hacia allá.</p>
+      <span class="pc-tag">ETA ENTREGA: CALOR TÉRMICO DEL UNIVERSO</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>PROFUNDIDAD ANÁLISIS</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:100%"></div></div><span>∞%</span></div>
+        <div class="pc-bar-row"><span>LÍNEAS DE CÓDIGO</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:8%"></div></div><span>8%</span></div>
+        <div class="pc-bar-row"><span>PASIÓN</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:100%"></div></div><span>100%</span></div>
+      </div>
+    </div>
+
+    <!-- FRAN -->
+    <div class="participant-card reveal" data-accent="pink">
+      <div class="pc-id">UNIT_06 // CLASIFICACIÓN: OVER-ENGINEER</div>
+      <div class="pc-header">
+        <div class="pc-avatar">🏭</div>
+        <div class="pc-info">
+          <span class="pc-name">Fran</span>
+          <span class="pc-role">Principal Galaxy-Brained Overarchitect</span>
+        </div>
+      </div>
+      <p class="pc-bio">Le pediste un LED parpadeante. Te entregó un framework modular con abstracción de capas de hardware, un sistema de plugins, documentación con diagramas UML y un PCB custom con serigrafía. Le pides un chicle y diseña la fábrica, el packaging y el plan de distribución logística a nivel europeo.</p>
+      <span class="pc-tag">SCOPE CREEP: NIVEL DIOS</span>
+      <div class="pc-bar-wrap">
+        <div class="pc-bar-row"><span>OVER-ENGINEERING</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:100%"></div></div><span>100%</span></div>
+        <div class="pc-bar-row"><span>CALIDAD TÉCNICA</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:96%"></div></div><span>96%</span></div>
+        <div class="pc-bar-row"><span>SIMPLICIDAD</span><div class="pc-bar-track"><div class="pc-bar-fill" style="width:2%"></div></div><span>2%</span></div>
+      </div>
     </div>
 
   </div>
